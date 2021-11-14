@@ -86,7 +86,7 @@ class RandomResizedCropAndInterpolation:
             if w <= img.size[0] and h <= img.size[1]:
                 i = random.randint(0, img.size[1] - h)
                 j = random.randint(0, img.size[0] - w)
-                return i, j, h, w
+                return j, i, w, h
 
         # Fallback to central crop
         in_ratio = img.size[0] / img.size[1]
@@ -101,7 +101,7 @@ class RandomResizedCropAndInterpolation:
             h = img.size[1]
         i = (img.size[1] - h) // 2
         j = (img.size[0] - w) // 2
-        return i, j, h, w
+        return j, i, w, h
 
     def __call__(self, img):
         """
@@ -111,12 +111,12 @@ class RandomResizedCropAndInterpolation:
         Returns:
             PIL Image: Randomly cropped and resized image.
         """
-        i, j, h, w = self.get_params(img, self.scale, self.ratio)
+        left, top, width, height = self.get_params(img, self.scale, self.ratio)
         if isinstance(self.interpolation, (tuple, list)):
             interpolation = random.choice(self.interpolation)
         else:
             interpolation = self.interpolation
-        img = img.crop((i, j, i + h, j + w))
+        img = img.crop((left, top, left + width, top + height))
         img = img.resize(self.size, interpolation)
         return img
 
